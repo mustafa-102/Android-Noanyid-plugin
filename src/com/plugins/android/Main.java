@@ -53,19 +53,21 @@ public class Main extends MMMMInterface {
     }
 
     private void ensureBuild() {
-        if (build == null)
-{            throw new RuntimeException("E: Ensure you idintify build.");
-}        else if (!build.exists())
-{            UtilFile.dir(build.getPath());
-}        else if (build.isFile())
-{            throw new RuntimeException("E: Ensure your build isn't file.");
-}    }
+        if (build == null) {
+            throw new RuntimeException("E: Ensure you idintify build.");
+        } else if (!build.exists()) {
+            UtilFile.dir(build.getPath());
+        } else if (build.isFile()) {
+            throw new RuntimeException("E: Ensure your build isn't file.");
+        }
+    }
 
     public void clean() throws Exception {
         ensureBuild();
-        if (build != null)
-{            UtilFile.delete(build);
-}        ensureBuild();
+        if (build != null) {
+            UtilFile.delete(build);
+        }
+        ensureBuild();
     }
 
     public void keystorePath(String keystorePath) throws Exception {
@@ -346,28 +348,31 @@ public class Main extends MMMMInterface {
 
         System.out.println("------=-----===🔋🔋🔋" + jar);
         System.out.println("-++++++++++++Cp-Proccessor===" + processorPathes);
-        if (processorPathes == null)
-{            processorPathes = jar;
-}        else
-{            processorPathes += System.getProperty("path.separator") + jar;
-}    }
+        if (processorPathes == null) {
+            processorPathes = jar;
+        } else {
+            processorPathes += System.getProperty("path.separator") + jar;
+        }
+    }
 
     public void add_processor_cp(String jar) throws Exception {
         ensureBuild();
 
         File jarFile = new File(jar);
-        if (!jarFile.exists())
-{            throw new Exception("E1: You add jar not found!" + jar);
-}        if (jarFile.isDirectory())
-{            throw new Exception("E2:for jars folder use add_jar_folder.");
-}
+        if (!jarFile.exists()) {
+            throw new Exception("E1: You add jar not found!" + jar);
+        }
+        if (jarFile.isDirectory()) {
+            throw new Exception("E2:for jars folder use add_jar_folder.");
+        }
         System.out.println("------=-----===🔋🔋🔋" + jar);
         System.out.println("-++++++++++++Cp-Proccessor===" + processorPathesCp);
-        if (processorPathesCp == null)
-{            processorPathesCp = jar;
-}        else
-{            processorPathesCp += System.getProperty("path.separator") + jar;
-}    }
+        if (processorPathesCp == null) {
+            processorPathesCp = jar;
+        } else {
+            processorPathesCp += System.getProperty("path.separator") + jar;
+        }
+    }
 
     public void add_processors_dir(String folderPath) throws Exception {
         File folder = new File(folderPath);
@@ -631,7 +636,6 @@ public class Main extends MMMMInterface {
     }
 
     File build;
-
     public void build(String build) {
         this.build = new File(build);
     }

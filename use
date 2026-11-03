@@ -1,0 +1,2 @@
+mv "/home/mustafa/private/Noanyid/plugins/Android/Android.jar" "/home/mustafa/private/Noanyid/plugins/Android/release/Android.jar"
+curl -X POST http://0.0.0.0:12345/compile -H "Content-Type: text/plain" --data "/home/mustafa/private/projects/N/build.noanyid"
