@@ -9,7 +9,6 @@ import java.util.jar.*;
 import java.util.zip.*;
 
 import com.android.tools.r8.*;
-
 import com.*;
 import com.util.*;
 
@@ -52,22 +51,10 @@ public class Main extends MMMMInterface {
         pluginApkSigner = new PluginApkSigner(this);
     }
 
-    private void ensureBuild() {
-        if (build == null) {
-            throw new RuntimeException("E: Ensure you idintify build.");
-        } else if (!build.exists()) {
-            UtilFile.dir(build.getPath());
-        } else if (build.isFile()) {
-            throw new RuntimeException("E: Ensure your build isn't file.");
-        }
-    }
-
     public void clean() throws Exception {
-        ensureBuild();
         if (build != null) {
             UtilFile.delete(build);
         }
-        ensureBuild();
     }
 
     public void keystorePath(String keystorePath) throws Exception {
@@ -101,7 +88,7 @@ public class Main extends MMMMInterface {
 
     public void manifest(String manifest) throws Exception {
         this.manifest = new File(manifest);
-        UtilFile.dir(manifest);
+        Utils.safty(manifest, true, Utils.SAFTY_MODE_MAKE);
         pkgName = getPackageFromAarManifest(this.manifest.getParentFile());
     }
 
@@ -109,14 +96,14 @@ public class Main extends MMMMInterface {
 
     public void res(String res) throws Exception {
         this.res = new File(res);
-        UtilFile.dir(res);
+        Utils.safty(res, false, Utils.SAFTY_MODE_MAKE);
     }
 
     File flat;
 
     public void flat(String flat) throws Exception {
         this.flat = new File(flat);
-        UtilFile.dir(flat);
+        Utils.safty(flat, false, Utils.SAFTY_MODE_MAKE);
     }
 
     public File flat() {
@@ -125,21 +112,21 @@ public class Main extends MMMMInterface {
 
     public void setApkOut(String unsignedApkFile) throws Exception {
         pluginApkSigner.unsignedApkFile = new File(unsignedApkFile);
-        UtilFile.dir(pluginApkSigner.unsignedApkFile.getParentFile().getPath());
+        Utils.safty(pluginApkSigner.unsignedApkFile.getParentFile().getPath(), true, Utils.SAFTY_MODE_MAKE);
     }
 
     File assets;
 
     public void assets(String assets) throws Exception {
         this.assets = new File(assets);
-        UtilFile.dir(assets);
+        Utils.safty(assets, false, Utils.SAFTY_MODE_MAKE);
     }
 
     File genarated;
 
     public void genarated(String genarated) throws Exception {
         this.genarated = new File(genarated);
-        UtilFile.dir(genarated);
+        Utils.safty(genarated, false, Utils.SAFTY_MODE_MAKE);
     }
 
     public List<File> resFolders = new ArrayList<>();
@@ -163,11 +150,11 @@ public class Main extends MMMMInterface {
 
             boolean canCompile = true;
             // check cache
-            if (!resFolderOut.exists())
+            if (!resFolderOut.exists()) {
                 resFolderOut.mkdirs();
-            else
+            } else {
                 canCompile = false;
-
+            }
             File[] resFolderData = resFolder.listFiles();
             if (resFolderData == null) {
                 System.out.println("Unable to process resFolder ->" + resFolderName);
@@ -293,15 +280,17 @@ public class Main extends MMMMInterface {
     }
 
     public void add_jar(String jar) throws Exception {
-        ensureBuild();
         File jarFile = new File(jar);
+        Utils.safty(jarFile, true);
         if (!isValidJar(jarFile)) {
             System.out.println("JAR!==🚫🚫" + jarFile.getName());
             return;
         } else {
 
         }
+
         File jar_out = new File(new File(build, "dexedJars"), path2id(jar));
+        Utils.safty(jar_out, false, Utils.SAFTY_MODE_MAKE);
         if (!jarFile.exists()) {
             throw new Exception("❌❌E1: You add jar not found!" + jar);
         }
@@ -313,6 +302,8 @@ public class Main extends MMMMInterface {
         } else {
             cp += System.getProperty("path.separator") + jar;
         }
+
+        System.out.println("jar addeed successfully" + jarFile);
         if (new File(jar_out, "classes.dex").exists()) {
             System.out.println("Jar-USED-CACH⚠️==={" + new File(jar).getName() + "}");
         } else {
@@ -328,9 +319,9 @@ public class Main extends MMMMInterface {
             byte[] hash = md.digest(fullPath.getBytes("UTF-8"));
 
             StringBuilder sb = new StringBuilder();
-            for (byte b : hash)
+            for (byte b : hash) {
                 sb.append(String.format("%02x", b));
-
+            }
             return sb.toString(); // take first 8 chars: a3f9c2d1
         } catch (Exception e) {
             return "00000000";
@@ -338,16 +329,10 @@ public class Main extends MMMMInterface {
     }
 
     public void add_processor(String jar) throws Exception {
-        ensureBuild();
+        Utils.safty(jar, true);
 
-        File jarFile = new File(jar);
-        if (!jarFile.exists())
-            throw new Exception("E1: You add jar not found!" + jar);
-        if (jarFile.isDirectory())
-            throw new Exception("E2:for jars folder use add_jar_folder.");
-
-        System.out.println("------=-----===🔋🔋🔋" + jar);
-        System.out.println("-++++++++++++Cp-Proccessor===" + processorPathes);
+        System.out.println("JAR==🔋🔋🔋" + UtilFile.getNameNoExtension(jar));
+        // System.out.println("-++++++++++++Cp-Proccessor===" + processorPathes);
         if (processorPathes == null) {
             processorPathes = jar;
         } else {
@@ -356,17 +341,9 @@ public class Main extends MMMMInterface {
     }
 
     public void add_processor_cp(String jar) throws Exception {
-        ensureBuild();
-
-        File jarFile = new File(jar);
-        if (!jarFile.exists()) {
-            throw new Exception("E1: You add jar not found!" + jar);
-        }
-        if (jarFile.isDirectory()) {
-            throw new Exception("E2:for jars folder use add_jar_folder.");
-        }
-        System.out.println("------=-----===🔋🔋🔋" + jar);
-        System.out.println("-++++++++++++Cp-Proccessor===" + processorPathesCp);
+        Utils.safty(jar, true);
+        System.out.println("JAR==🔋🔋🔋" + UtilFile.getNameNoExtension(jar));
+        // System.out.println("-++++++++++++Cp-Proccessor===" + processorPathes);
         if (processorPathesCp == null) {
             processorPathesCp = jar;
         } else {
@@ -376,63 +353,49 @@ public class Main extends MMMMInterface {
 
     public void add_processors_dir(String folderPath) throws Exception {
         File folder = new File(folderPath);
+        Utils.safty(folder, false);
 
-        if (!folder.exists()) {
-            throw new RuntimeException("E3:❌ You must put exists folder jar add_processor_jar_folder(): " + folder);
-        }
         for (File jarFile : folder.listFiles()) {
             if (jarFile.getName().endsWith(".jar")) {
                 add_processor(jarFile.getPath());
             }
         }
-        spichalPrint("[A] adding jar folder: " + folderPath);
-    }
-
-    private void spichalPrint(String text) {
-        System.out.println(text);
+        System.out.println("Jar filse inside " + folder.getName() + " will be processsed");
     }
 
     public void add_processors_cp_dir(String folderPath) throws Exception {
         File folder = new File(folderPath);
+        Utils.safty(folder, false);
 
-        if (!folder.exists()) {
-            throw new RuntimeException("E3:❌ You must put exists folder jar add_processor_jar_folder(): " + folder);
-        }
         add_jar_folder(folderPath);
         for (File jarFile : folder.listFiles()) {
-            if (jarFile.getName().endsWith(".jar"))
+            if (jarFile.getName().endsWith(".jar")) {
                 add_processor_cp(jarFile.getPath());
+            }
         }
-        spichalPrint("[A] adding jar folder: " + folderPath);
+        System.out.println("Jar filse inside " + folder.getName() + " will be processsed");
     }
 
     public void add_jar_folder(String folderPath) throws Exception {
         File folder = new File(folderPath);
-        File[] files = folder.listFiles();
-        if (files == null) {
-            System.out.println(String.format("Note⚠️: {%s} is not exists", folderPath));
-            return;
-        }
-        for (File jarFile : files) {
+        Utils.safty(folder, false);
+
+        for (File jarFile : folder.listFiles()) {
             if (jarFile.getName().endsWith(".jar"))
                 add_jar(jarFile.getPath());
         }
-        spichalPrint("[A] adding jar folder: " + folderPath);
+        System.out.println("Jar filse inside " + folder.getName() + " will be dexed");
     }
 
     public void add_java_folder(String folder_path) throws Exception {
         File java_folder = new File(folder_path);
-        if (!java_folder.exists()) {
-            throw new Exception("⚠️⚠️⚠️I3: java folder not found⚠️⚠️⚠️");
-        }
+        Utils.safty(java_folder, false);
         collectJavaFiles(java_folder, newJava);
     }
 
     public void add_java_folder_proc(String folder_path) throws Exception {
         File java_folder = new File(folder_path);
-        if (!java_folder.exists()) {
-            throw new Exception("⚠️⚠️⚠️I3: java proc folder not found⚠️⚠️⚠️");
-        }
+        Utils.safty(java_folder, false);
         add_java_folder(folder_path);
         // File generatedJava = new File(build, "generatedJava");
         // TODO
@@ -445,10 +408,8 @@ public class Main extends MMMMInterface {
     }
 
     public static void collectJavaFiles(File folder, List<String> dst) {
-        File[] files = folder.listFiles();
-        if (files == null)
-            return;
-        for (File f : files) {
+        // invoker safe listFiles() of null
+        for (File f : folder.listFiles()) {
             if (f.isDirectory()) {
                 collectJavaFiles(f, dst);
             } else if (f.getName().endsWith(".java")) {
@@ -491,9 +452,9 @@ public class Main extends MMMMInterface {
     }
 
     public void java(String addition) throws Exception {
-        ensureBuild();
         File builtJava = new File(build, "java");
-        UtilFile.dir(builtJava.getPath());
+        Utils.safty(builtJava, false, Utils.SAFTY_MODE_MAKE);
+
         String CP = (cp == null ? "" : "" + System.getProperty("path.separator") + cp);
         List<String> options = new ArrayList<>();
 
@@ -528,27 +489,26 @@ public class Main extends MMMMInterface {
 
     public void dex(String input, String dst) throws Exception {
         // String builtJava = ensureDexing(new File(dst));
-        // System.out.println("------>" + dst);
+        Utils.safty(dst, false, Utils.SAFTY_MODE_MAKE);
+
+        System.out.println("------>" + dst);
+        System.out.println("------>" + input);
+        System.out.println("------>" + new File(input).exists());
+
         toDexDebug(input, dst, androidJar.getPath());
-        // System.out.println("DEXed");
+        System.out.println("DEXed");
     }
 
     public void dexing() throws Exception {
         File classesFile = new File(build, "classes");
+        Utils.safty(classesFile, false, Utils.SAFTY_MODE_MAKE);
+
         File builtJava = new File(build, "java");
+        Utils.safty(builtJava, false, Utils.SAFTY_MODE_MAKE);
+
         dex(builtJava.getPath(), classesFile.getPath());
 
         mereging(classesFile);
-    }
-
-    private String ensureDexing(File classesFile) {
-        ensureBuild();
-
-        File builtJava = new File(build, "java");
-        UtilFile.dir(classesFile.getPath());
-        UtilFile.dir(builtJava.getPath());
-
-        return builtJava.getPath();
     }
 
     private void mereging(File classesFile) throws Exception {
@@ -565,19 +525,21 @@ public class Main extends MMMMInterface {
             }
         }
 
-        if (baseDexesSize == 0)
+        if (baseDexesSize == 0) {
             throw new RuntimeException("E5: Error: -----base Dex Not found");
-
+        }
         HashSet<String> namesToReplace = new HashSet<>();
 
         for (File baseDex : baseDexes) {
-            if (baseDex.getName().endsWith(".dex"))
+            if (baseDex.getName().endsWith(".dex")) {
                 namesToReplace.add(baseDex.getName());
+            }
         }
         int i = 0;
         for (File f : dexesOfJars.keySet()) {
-            if (!f.exists())
+            if (!f.exists()) {
                 throw new RuntimeException("E6: Error: -:apsend dexOfJar " + dexesOfJars.get(f));
+            }
             String countedName = UtilFile.getNameNoExtension(f) + (i + 1 + baseDexesSize) + UtilFile.getExtension(f);
             namesToReplace.add(countedName);
             addToZip(f, tempZipOutStream, buffer, countedName);
@@ -589,9 +551,9 @@ public class Main extends MMMMInterface {
         ZipEntry entry;
         while ((entry = zipInputUnSigned.getNextEntry()) != null) {
             String name = entry.getName();
-            if (namesToReplace.contains(name))
+            if (namesToReplace.contains(name)) {
                 continue;
-
+            }
             ZipEntry newEntry = new ZipEntry(name);
             newEntry.setMethod(entry.getMethod());
             newEntry.setTime(entry.getTime());
@@ -631,13 +593,17 @@ public class Main extends MMMMInterface {
         pluginApkSigner.unsignedApkFile.delete();
         tmpFile.renameTo(pluginApkSigner.unsignedApkFile);
 
-        run(adb.toString(), "install", pluginApkSigner.sign());
+        String signed = pluginApkSigner.sign();
+        run(adb.toString(), "push", signed);
+        run(adb.toString(), "install", signed);
         run(adb.toString(), "shell", "monkey", "-p", pkgName, "-c", "android.intent.category.LAUNCHER", "1");
     }
 
     File build;
+
     public void build(String build) {
         this.build = new File(build);
+        Utils.safty(build, false, Utils.SAFTY_MODE_MAKE);
     }
 
     public void jni_walker(File jni, String header, boolean first, ZipOutputStream tempZipOutStream)
@@ -650,10 +616,11 @@ public class Main extends MMMMInterface {
         }
 
         for (File t : jni.listFiles()) {
-            if (t.isDirectory())
+            if (t.isDirectory()) {
                 jni_walker(t, header, false, tempZipOutStream);
-            else
+            } else {
                 addToZip(t, tempZipOutStream, buffer, t.getPath().replaceAll(header, "lib"));
+            }
         }
     }
 
@@ -676,22 +643,15 @@ public class Main extends MMMMInterface {
 
     public void aar_model_folder(String modelFoldersPath) throws Exception {
         File modelFolders = new File(modelFoldersPath);
-        if (!modelFolders.exists()) {
-            System.out.println("🚫Aar models folder not found");
-            return;
-        }
-        File[] l = modelFolders.listFiles();
-        if (l == null)
-            throw new Exception("❌Unable to open folder aar model");
-        for (File model : l) {
+        Utils.safty(modelFolders, false);
+        for (File model : modelFolders.listFiles()) {
             aar_model(model.getPath());
         }
     }
 
     public void aar_model(String aar_group) throws Exception {
         File aarGroupFolder = new File(aar_group);
-        if (!aarGroupFolder.exists())
-            throw new Exception("❌Unable to open folder aar model group No found");
+        Utils.safty(aarGroupFolder, false);
         if (aarGroupFolder.isFile()) {
             if (aarGroupFolder.getName().endsWith(".aar")) {
                 aar(aarGroupFolder.getPath());
@@ -701,17 +661,13 @@ public class Main extends MMMMInterface {
             return;
         }
 
-        ensureBuild();
         add_jar_folder(aar_group);
         // System.out.println("AAR++++++APK:" + aar_group);
         // System.out.println("Aar: " + flat.getPath());
         // File aar_build = new File(aarParent + "/" + UtilFile.getNameNoExtension(aar)
         // + "_build");
-        File[] files = aarGroupFolder.listFiles();
-        if (files == null)
-            throw new Exception("❌❌❌❌Unkonwen erorr list of(" + aarGroupFolder.getName() + ") is null");
 
-        for (File aar : files) {
+        for (File aar : aarGroupFolder.listFiles()) {
             if (aar.getName().endsWith(".aar")) {
                 aar(aar.getPath());
             } else if (aar.getName().endsWith(".jar")) {
@@ -721,11 +677,9 @@ public class Main extends MMMMInterface {
     }
 
     private void aar(String aarPath) throws Exception {
-        spichalPrint("AAR:AAR:" + aarPath);
-        if (aarPath == null) {
-            System.out.println("Wraning⚠️⚠️: Unable to find .aar in(" + aarPath + ")");
-            return;
-        }
+        debuggigPrint("aar:" + aarPath);
+        Utils.safty(aarPath, true);
+
         File aar = new File(aarPath);
 
         File unzipFolder = new File(aar.getParent(), UtilFile.getNameNoExtension(aar));
@@ -744,10 +698,15 @@ public class Main extends MMMMInterface {
 
         add_jar_folder(unzipFolder.getPath());
         File aarRes = new File(unzipFolder, "res");
-        if (aarRes.exists())
+        if (aarRes.exists()) {
             add_compile_res(aarRes);
+        }
         File jni = new File(unzipFolder, "jni");
         add_jni(jni);
+    }
+
+    private void debuggigPrint(String string) {
+
     }
 
     public static void unzip(File zipFile, File destDir) throws Exception {
@@ -799,7 +758,7 @@ public class Main extends MMMMInterface {
                 return m.group(1);
             }
         } catch (Exception e) {
-            spichalPrint("Manifest parse fail: " + e);
+            debuggigPrint("Manifest parse fail: " + e);
         }
         return null;
     }
@@ -814,13 +773,11 @@ public class Main extends MMMMInterface {
 
     private void add_aar_folder(String folderPath) throws Exception {
         File folder = new File(folderPath);
-        if (!folder.exists()) {
-            throw new RuntimeException("E8: adding aar folder not found" + folder);
-        }
+        Utils.safty(folderPath, false);
         for (File aarFile : folder.listFiles()) {
             aar(aarFile.getPath());
         }
-        spichalPrint("[A] added aar folder: " + folderPath);
+        debuggigPrint("[A] added aar folder: " + folderPath);
     }
 
     public static String getFileName(String path) {
@@ -851,16 +808,19 @@ public class Main extends MMMMInterface {
                 .setMinApiLevel(21)
                 .setDisableDesugaring(false);
         File inputFile = new File(input);
+        if (!inputFile.exists()) {
+            throw new RuntimeException("!!!!!!!!!!!!!!!!!!!!!!!!!!!!@#$" + inputFile);
+        }
         if (inputFile.isFile())
-            if (inputFile.getName().endsWith(".jar"))
+            if (inputFile.getName().endsWith(".jar")) {
                 builder.addProgramFiles(inputFile.toPath());
-            else {
-                System.out.println("Filad D8: not jar file.");
+            } else {
+                System.out.println("Filad D8: not jar file or not found." + inputFile);
                 return;
             }
-        else
+        else {
             addClassFiles(inputFile, builder);
-
+        }
         try {
             D8.run(builder.build());
             System.out.println("D8 Successed:(OK):" + inputFile.getName());
@@ -887,8 +847,9 @@ public class Main extends MMMMInterface {
 
     private static void compileAndMeasure(List<String> files, List<String> options)
             throws IOException {
-        if (files.size() == 0)
+        if (files.size() == 0) {
             return;
+        }
         if (compiler == null) {
             System.out.println(NO_COMPILER_ERROR);
             return;
