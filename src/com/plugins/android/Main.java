@@ -771,15 +771,6 @@ public class Main extends MMMMInterface {
         }
     }
 
-    private void add_aar_folder(String folderPath) throws Exception {
-        File folder = new File(folderPath);
-        Utils.safty(folderPath, false);
-        for (File aarFile : folder.listFiles()) {
-            aar(aarFile.getPath());
-        }
-        debuggigPrint("[A] added aar folder: " + folderPath);
-    }
-
     public static String getFileName(String path) {
         int i = path.lastIndexOf('/');
         if (i == -1)
