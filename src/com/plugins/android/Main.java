@@ -112,7 +112,7 @@ public class Main extends MMMMInterface {
 
     public void setApkOut(String unsignedApkFile) throws Exception {
         pluginApkSigner.unsignedApkFile = new File(unsignedApkFile);
-        Utils.safty(pluginApkSigner.unsignedApkFile.getParentFile().getPath(), true, Utils.SAFTY_MODE_MAKE);
+        Utils.safty(pluginApkSigner.unsignedApkFile.getParentFile().getPath(), false, Utils.SAFTY_MODE_MAKE);
     }
 
     File assets;
@@ -291,12 +291,8 @@ public class Main extends MMMMInterface {
 
         File jar_out = new File(new File(build, "dexedJars"), path2id(jar));
         Utils.safty(jar_out, false, Utils.SAFTY_MODE_MAKE);
-        if (!jarFile.exists()) {
-            throw new Exception("❌❌E1: You add jar not found!" + jar);
-        }
-        if (jarFile.isDirectory()) {
-            throw new Exception("❌❌E2:for jars folder use add_jar_folder.");
-        } // spichalPrint("-++++++++++++-Cp-JAR===" + cp);
+        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>"+jar_out.getName());
+        
         if (cp == null) {
             cp = jar;
         } else {
